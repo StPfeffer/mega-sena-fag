@@ -26,9 +26,6 @@ public class MegaSena {
     private BigDecimal acumuladoSorteioEspecialMegaVirada;
     private String observacao;
 
-    public MegaSena() {
-    }
-
     public long getConcurso() {
         return concurso;
     }

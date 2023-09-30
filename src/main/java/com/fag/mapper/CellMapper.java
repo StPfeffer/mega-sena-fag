@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.TimeZone;
 
@@ -18,17 +18,23 @@ public class CellMapper {
         while (cells.hasNext()) {
             Cell cell = cells.next();
 
-//            Class<?> type = CellService.resolveCellType(cell.getCellType());
             resolveCellColumn(((XSSFCell) cell).getRawValue(), cell.getColumnIndex(), megaSena);
         }
     }
 
-    private static void resolveCellColumn(String value, Integer index, MegaSena megaSena) throws ParseException {
+    private static void resolveCellColumn(String value, Integer index, MegaSena megaSena) {
         switch (index + 1) {
-            case 1 -> megaSena.setConcurso(Long.parseLong(value));
+            case 1 -> megaSena.setConcurso(Long.parseLong(value) + 1);
             case 2 -> {
-                Long longDate = new SimpleDateFormat("dd/MM/yyyy").parse(value).getTime();
-                LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(longDate), TimeZone.getDefault().toZoneId());
+                long longDate = 0L;
+
+                try {
+                    longDate = new SimpleDateFormat("dd/MM/yyyy").parse(value).getTime();
+                } catch (ParseException ignored) {
+                }
+
+                LocalDate localDate = LocalDate.ofInstant(Instant.ofEpochMilli(longDate), TimeZone.getDefault().toZoneId());
+                megaSena.setDataSorteio(localDate);
             }
             case 3 -> megaSena.setBola1(Integer.parseInt(value));
             case 4 -> megaSena.setBola2(Integer.parseInt(value));
