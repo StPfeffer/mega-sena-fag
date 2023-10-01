@@ -1,7 +1,5 @@
 package com.fag;
 
-import com.fag.service.MegaSenaService;
-import com.fag.service.RowService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 public class Main {
+
     public static void main(String[] args) throws FileNotFoundException {
         String path = "./src/main/java/com/fag/data/Mega-Sena.xlsx";
         File file = new File(path);
@@ -57,17 +56,17 @@ public class Main {
                         case 1: // data
                             continue;
                         case 2: // bola 1
-                            break;
+                            continue;
                         case 3: // bola 2
-                            break;
+                            continue;
                         case 4: // bola 3
-                            break;
+                            continue;
                         case 5: // bola 4
-                            break;
+                            continue;
                         case 6: // bola 5
-                            break;
+                            continue;
                         case 7: // bola 6
-                            break;
+                            continue;
                         case 8: // ganhadores 6 acertos
                             valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
 
@@ -77,7 +76,7 @@ public class Main {
 
                             qtdeGanhadoresSeisDezenasTodosConcursos += valor;
 
-                            break;
+                            continue;
                         case 9: // uf
                             continue;
                         case 10: // rateio 6 acertos
@@ -91,12 +90,12 @@ public class Main {
                                 }
                             }
 
-                            break;
+                            continue;
                         case 11: // ganhadores 5 acertos
                             valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
                             qtdeGanhadoresCincoDezenasTodosConcursos += valor;
 
-                            break;
+                            continue;
                         case 12: // rateio 5 acertos
                             valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
 
@@ -108,12 +107,12 @@ public class Main {
                                 }
                             }
 
-                            break;
+                            continue;
                         case 13: // ganhadores 4 acertos
                             valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
                             qtdeGanhadoresQuatroDezenasTodosConcursos += valor;
 
-                            break;
+                            continue;
                         case 14: // rateio 4 acertos
                             valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
 
@@ -125,9 +124,9 @@ public class Main {
                                 }
                             }
 
-                            break;
+                            continue;
                         case 15: // acumulado 6 acertos
-                            break;
+                            continue;
                         case 16: // arrecadacao total
                             continue;
                         case 17: // estimativa premio
@@ -140,8 +139,18 @@ public class Main {
                             throw new UnsupportedOperationException("Não existe mapeamento para essa coluna");
                     }
                 }
-
             }
+
+            System.out.println("qtdeConcursosSemSeisDezenas: " + qtdeConcursosSemSeisDezenas);
+            System.out.println("menorValorQuatroDezenas: " + menorValorQuatroDezenas);
+            System.out.println("menorValorCincoDezenas: " + menorValorCincoDezenas);
+            System.out.println("menorValorSeisDezenas: " + menorValorSeisDezenas);
+            System.out.println("maiorValorQuatroDezenas: " + maiorValorQuatroDezenas);
+            System.out.println("maiorValorCincoDezenas: " + maiorValorCincoDezenas);
+            System.out.println("maiorValorSeisDezenas: " + maiorValorSeisDezenas);
+            System.out.println("qtdeGanhadoresQuatroDezenasTodosConcursos: " + qtdeGanhadoresQuatroDezenasTodosConcursos);
+            System.out.println("qtdeGanhadoresCincoDezenasTodosConcursos: " + qtdeGanhadoresCincoDezenasTodosConcursos);
+            System.out.println("qtdeGanhadoresSeisDezenasTodosConcursos: " + qtdeGanhadoresSeisDezenasTodosConcursos);
 
         } catch (IOException ignored) {
         }
