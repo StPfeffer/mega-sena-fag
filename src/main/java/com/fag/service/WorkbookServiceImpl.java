@@ -1,6 +1,7 @@
 package com.fag.service;
 
 import com.fag.dto.MegaSenaDTO;
+import com.fag.interfaces.CellProcessorService;
 import com.fag.interfaces.IWorkbookService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,6 +17,15 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class WorkbookServiceImpl implements IWorkbookService {
+
+    private final Map<Integer, CellProcessorService> columnHandlers = Map.of(
+            8, (cell, row, megaSenaData) -> processGanhadoresSeisDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
+            10, (cell, row, megaSenaData) -> processRateioSeisDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData),
+            11, (cell, row, megaSenaData) -> processGanhadoresCincoDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
+            12, (cell, row, megaSenaData) -> processRateioCincoDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData),
+            13, (cell, row, megaSenaData) -> processGanhadoresQuatroDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
+            14, (cell, row, megaSenaData) -> processRateioQuatroDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData)
+    );
 
     @Override
     public MegaSenaDTO processExcelFile(FileInputStream fis, Map<String, Integer> columnIndexes, int sheetIndex) throws IOException {
@@ -59,35 +69,20 @@ public class WorkbookServiceImpl implements IWorkbookService {
     }
 
     private void processCellValue(int columnIndex, Cell cell, Row row, MegaSenaDTO megaSenaData) {
-        int valor;
-        BigDecimal bigValue;
+        columnHandlers.getOrDefault(columnIndex, (c, r, d) -> {}).process(cell, row, megaSenaData);
+    }
 
-        switch (columnIndex) {
-            case 8 -> { // ganhadores 6 acertos
-                valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                processGanhadoresSeisDezenas(valor, megaSenaData);
-            }
-            case 10 -> { // rateio 6 acertos
-                bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-                processRateioSeisDezenas(bigValue, row, megaSenaData);
-            }
-            case 11 -> { // ganhadores 5 acertos
-                valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                processGanhadoresCincoDezenas(valor, megaSenaData);
-            }
-            case 12 -> { // rateio 5 acertos
-                bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-                processRateioCincoDezenas(bigValue, row, megaSenaData);
-            }
-            case 13 -> { // ganhadores 4 acertos
-                valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                processGanhadoresQuatroDezenas(valor, megaSenaData);
-            }
-            case 14 -> { // rateio 4 acertos
-                bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-                processRateioQuatroDezenas(bigValue, row, megaSenaData);
-            }
-        }
+    @Override
+    public Map<String, Integer> initializeColumnIndexes(FileInputStream fis) throws IOException {
+        Map<String, Integer> columnIndexes = new HashMap<>();
+        columnIndexes.put("ganhadores 6 acertos", 8);
+        columnIndexes.put("rateio 6 acertos", 10);
+        columnIndexes.put("ganhadores 5 acertos", 11);
+        columnIndexes.put("rateio 5 acertos", 12);
+        columnIndexes.put("ganhadores 4 acertos", 13);
+        columnIndexes.put("rateio 4 acertos", 14);
+
+        return columnIndexes;
     }
 
     private void processGanhadoresSeisDezenas(int valor, MegaSenaDTO megaSenaDTO) {
@@ -153,19 +148,6 @@ public class WorkbookServiceImpl implements IWorkbookService {
                 megaSenaDTO.setMaiorValorQuatroDezenas(bigValue);
             }
         }
-    }
-
-    @Override
-    public Map<String, Integer> initializeColumnIndexes(FileInputStream fis) throws IOException {
-        Map<String, Integer> columnIndexes = new HashMap<>();
-        columnIndexes.put("ganhadores 6 acertos", 8);
-        columnIndexes.put("rateio 6 acertos", 10);
-        columnIndexes.put("ganhadores 5 acertos", 11);
-        columnIndexes.put("rateio 5 acertos", 12);
-        columnIndexes.put("ganhadores 4 acertos", 13);
-        columnIndexes.put("rateio 4 acertos", 14);
-
-        return columnIndexes;
     }
 
 }
