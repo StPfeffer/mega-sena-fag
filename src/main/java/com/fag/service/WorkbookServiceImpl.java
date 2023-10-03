@@ -65,7 +65,7 @@ public class WorkbookServiceImpl implements IWorkbookService {
         switch (columnIndex) {
             case 8 -> { // ganhadores 6 acertos
                 valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                processGanhadoresSeisDezenas(valor, megaSenaData, row);
+                processGanhadoresSeisDezenas(valor, megaSenaData);
             }
             case 10 -> { // rateio 6 acertos
                 bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
@@ -90,7 +90,7 @@ public class WorkbookServiceImpl implements IWorkbookService {
         }
     }
 
-    private void processGanhadoresSeisDezenas(int valor, MegaSenaDTO megaSenaDTO, Row row) {
+    private void processGanhadoresSeisDezenas(int valor, MegaSenaDTO megaSenaDTO) {
         if (valor == 0) {
             megaSenaDTO.incrementConcursosSemSeisDezenas();
         }

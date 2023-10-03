@@ -6,10 +6,10 @@ import java.io.FileNotFoundException;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         String path = "./src/main/java/com/fag/data/Mega-Sena.xlsx";
 
-        MegaSenaServiceImpl.analyzer(path);
+        MegaSenaServiceImpl.instance().analyzer(path);
     }
 
 }
