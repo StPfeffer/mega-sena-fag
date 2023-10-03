@@ -29,11 +29,13 @@ public class MegaSenaService {
     }
 
     private static MegaSenaDTO processExcelFile(FileInputStream fis, int sheetIndex) throws IOException {
-        MegaSenaDTO megaSenaDTO = new MegaSenaDTO();
-        Map<String, Integer> columns = initializeColumns();
+        MegaSenaDTO megaSenaData = new MegaSenaDTO();
+        Map<String, Integer> columnIndexes = initializeColumnIndexes();
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(fis);
             XSSFSheet sheet = workbook.getSheetAt(sheetIndex);
+
             Iterator<Row> rows = sheet.rowIterator();
 
             while (rows.hasNext()) {
@@ -50,86 +52,83 @@ public class MegaSenaService {
                     int columnIndex = cell.getColumnIndex();
                     String columnName = sheet.getRow(0).getCell(columnIndex).getStringCellValue();
 
-                    if (columns.containsKey(columnName)) {
+                    if (columnIndexes.containsKey(columnName)) {
                         int valor;
                         BigDecimal bigValue;
 
                         switch (columnIndex) {
-                            case 8: // ganhadores 6 acertos
+                            case 8 -> { // ganhadores 6 acertos
                                 valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-
                                 if (valor == 0) {
-                                    megaSenaDTO.incrementConcursosSemSeisDezenas();
+                                    megaSenaData.incrementConcursosSemSeisDezenas();
                                 }
-
-                                megaSenaDTO.incrementGanhadoresSeisDezenas(valor);
-                                break;
-                            case 10: // rateio 6 acertos
+                                megaSenaData.incrementGanhadoresSeisDezenas(valor);
+                            }
+                            case 10 -> { // rateio 6 acertos
                                 bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-
                                 if (row.getRowNum() == 1) {
                                     if (bigValue.compareTo(BigDecimal.ZERO) > 0) {
-                                        megaSenaDTO.setMenorValorSeisDezenas(bigValue);
+                                        megaSenaData.setMenorValorSeisDezenas(bigValue);
                                     }
 
-                                    megaSenaDTO.setMaiorValorSeisDezenas(bigValue);
+                                    megaSenaData.setMaiorValorSeisDezenas(bigValue);
                                 } else {
-                                    if (bigValue.compareTo(megaSenaDTO.getMenorValorSeisDezenas()) < 0 && bigValue.compareTo(BigDecimal.ZERO) > 0) {
-                                        megaSenaDTO.setMenorValorSeisDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMenorValorSeisDezenas()) < 0 && bigValue.compareTo(BigDecimal.ZERO) > 0) {
+                                        megaSenaData.setMenorValorSeisDezenas(bigValue);
                                     }
 
-                                    if (bigValue.compareTo(megaSenaDTO.getMaiorValorSeisDezenas()) > 0) {
-                                        megaSenaDTO.setMaiorValorSeisDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMaiorValorSeisDezenas()) > 0) {
+                                        megaSenaData.setMaiorValorSeisDezenas(bigValue);
                                     }
                                 }
-                                break;
-                            case 11: // ganhadores 5 acertos
+                            }
+                            case 11 -> { // ganhadores 5 acertos
                                 valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                                megaSenaDTO.incrementGanhadoresCincoDezenas(valor);
-                                break;
-                            case 12: // rateio 5 acertos
+                                megaSenaData.incrementGanhadoresCincoDezenas(valor);
+                            }
+                            case 12 -> { // rateio 5 acertos
                                 bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-
                                 if (row.getRowNum() == 1) {
-                                    megaSenaDTO.setMenorValorCincoDezenas(bigValue);
-                                    megaSenaDTO.setMaiorValorCincoDezenas(bigValue);
+                                    megaSenaData.setMenorValorCincoDezenas(bigValue);
+                                    megaSenaData.setMaiorValorCincoDezenas(bigValue);
                                 } else {
-                                    if (bigValue.compareTo(megaSenaDTO.getMenorValorCincoDezenas()) < 0) {
-                                        megaSenaDTO.setMenorValorCincoDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMenorValorCincoDezenas()) < 0) {
+                                        megaSenaData.setMenorValorCincoDezenas(bigValue);
                                     }
 
-                                    if (bigValue.compareTo(megaSenaDTO.getMaiorValorCincoDezenas()) > 0) {
-                                        megaSenaDTO.setMaiorValorCincoDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMaiorValorCincoDezenas()) > 0) {
+                                        megaSenaData.setMaiorValorCincoDezenas(bigValue);
                                     }
                                 }
-                                break;
-                            case 13: // ganhadores 4 acertos
+                            }
+                            case 13 -> { // ganhadores 4 acertos
                                 valor = Integer.parseInt(((XSSFCell) cell).getRawValue());
-                                megaSenaDTO.incrementGanhadoresQuatroDezenas(valor);
-                                break;
-                            case 14: // rateio 4 acertos
+                                megaSenaData.incrementGanhadoresQuatroDezenas(valor);
+                            }
+                            case 14 -> { // rateio 4 acertos
                                 bigValue = new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", "."));
-
                                 if (row.getRowNum() == 1) {
-                                    megaSenaDTO.setMenorValorQuatroDezenas(bigValue);
-                                    megaSenaDTO.setMaiorValorQuatroDezenas(bigValue);
+                                    megaSenaData.setMenorValorQuatroDezenas(bigValue);
+                                    megaSenaData.setMaiorValorQuatroDezenas(bigValue);
                                 } else {
-                                    if (bigValue.compareTo(megaSenaDTO.getMenorValorQuatroDezenas()) < 0) {
-                                        megaSenaDTO.setMenorValorQuatroDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMenorValorQuatroDezenas()) < 0) {
+                                        megaSenaData.setMenorValorQuatroDezenas(bigValue);
                                     }
 
-                                    if (bigValue.compareTo(megaSenaDTO.getMaiorValorQuatroDezenas()) > 0) {
-                                        megaSenaDTO.setMaiorValorQuatroDezenas(bigValue);
+                                    if (bigValue.compareTo(megaSenaData.getMaiorValorQuatroDezenas()) > 0) {
+                                        megaSenaData.setMaiorValorQuatroDezenas(bigValue);
                                     }
                                 }
-                                break;
+                            }
                         }
                     }
                 }
             }
+        } catch (IOException | NumberFormatException e) {
+            throw new RuntimeException(e);
         }
 
-        return megaSenaDTO;
+        return megaSenaData;
     }
 
     private static Map<String, Integer> initializeColumnIndexes() {
@@ -140,20 +139,21 @@ public class MegaSenaService {
         columnIndexes.put("rateio 5 acertos", 12);
         columnIndexes.put("ganhadores 4 acertos", 13);
         columnIndexes.put("rateio 4 acertos", 14);
+
         return columnIndexes;
     }
 
-    private static void printResults(MegaSenaDTO dto) {
-        System.out.println("Quantidade de concursos sem seis dezenas: " + dto.getConcursosSemSeisDezenas());
-        System.out.println("Menor valor quatro dezenas: " + dto.getMenorValorQuatroDezenas());
-        System.out.println("Menor valor cinco dezenas: " + dto.getMenorValorCincoDezenas());
-        System.out.println("Menor valor seis dezenas: " + dto.getMenorValorSeisDezenas());
-        System.out.println("Maior valor quatro dezenas: " + dto.getMaiorValorQuatroDezenas());
-        System.out.println("Maior valor cinco dezenas: " + dto.getMaiorValorCincoDezenas());
-        System.out.println("Maior valor seis dezenas: " + dto.getMaiorValorSeisDezenas());
-        System.out.println("Quantidade de ganhadores de quatro dezenas em todos os concursos: " + dto.getGanhadoresQuatroDezenasTodosConcursos());
-        System.out.println("Quantidade de ganhadores de cinco dezenas em todos os concursos: " + dto.getGanhadoresCincoDezenasTodosConcursos());
-        System.out.println("Quantidade de ganhadores de seis dezenas em todos os concursos: " + dto.getGanhadoresSeisDezenasTodosConcursos());
+    private static void printResults(MegaSenaDTO megaSenaDTO) {
+        System.out.println("Quantidade de concursos sem seis dezenas: " + megaSenaDTO.getConcursosSemSeisDezenas());
+        System.out.println("Menor valor quatro dezenas: " + megaSenaDTO.getMenorValorQuatroDezenas());
+        System.out.println("Menor valor cinco dezenas: " + megaSenaDTO.getMenorValorCincoDezenas());
+        System.out.println("Menor valor seis dezenas: " + megaSenaDTO.getMenorValorSeisDezenas());
+        System.out.println("Maior valor quatro dezenas: " + megaSenaDTO.getMaiorValorQuatroDezenas());
+        System.out.println("Maior valor cinco dezenas: " + megaSenaDTO.getMaiorValorCincoDezenas());
+        System.out.println("Maior valor seis dezenas: " + megaSenaDTO.getMaiorValorSeisDezenas());
+        System.out.println("Quantidade de ganhadores de quatro dezenas em todos os concursos: " + megaSenaDTO.getGanhadoresQuatroDezenasTodosConcursos());
+        System.out.println("Quantidade de ganhadores de cinco dezenas em todos os concursos: " + megaSenaDTO.getGanhadoresCincoDezenasTodosConcursos());
+        System.out.println("Quantidade de ganhadores de seis dezenas em todos os concursos: " + megaSenaDTO.getGanhadoresSeisDezenasTodosConcursos());
     }
 
 }
