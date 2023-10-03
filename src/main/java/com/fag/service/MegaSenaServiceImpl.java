@@ -1,15 +1,21 @@
 package com.fag.service;
 
 import com.fag.dto.MegaSenaDTO;
+import com.fag.interfaces.IMegaSenaService;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-public class MegaSenaServiceImpl {
+public class MegaSenaServiceImpl implements IMegaSenaService {
 
-    public static void analyzer(String path) {
+    public static MegaSenaServiceImpl instance() {
+        return new MegaSenaServiceImpl();
+    }
+
+    @Override
+    public void analyzer(String path) {
         File file = new File(path);
 
         try (FileInputStream fis = new FileInputStream(file)) {
