@@ -1,15 +1,16 @@
 package com.fag;
 
+import com.fag.dto.MegaSenaDTO;
 import com.fag.service.MegaSenaServiceImpl;
-
-import java.io.FileNotFoundException;
 
 public class Main {
 
     public static void main(String[] args) {
         String path = "./src/main/java/com/fag/data/Mega-Sena.xlsx";
 
-        MegaSenaServiceImpl.instance().analyzer(path);
+        MegaSenaDTO dto = MegaSenaServiceImpl.instance().analyzer(path);
+
+        MegaSenaServiceImpl.printResults(dto);
     }
 
 }

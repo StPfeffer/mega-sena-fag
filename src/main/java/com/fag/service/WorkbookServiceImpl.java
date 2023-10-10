@@ -19,12 +19,12 @@ import java.util.Map;
 public class WorkbookServiceImpl implements IWorkbookService {
 
     private final Map<Integer, CellProcessorService> columnHandlers = Map.of(
-            8, (cell, row, megaSenaData) -> processGanhadoresSeisDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
-            10, (cell, row, megaSenaData) -> processRateioSeisDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData),
-            11, (cell, row, megaSenaData) -> processGanhadoresCincoDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
-            12, (cell, row, megaSenaData) -> processRateioCincoDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData),
-            13, (cell, row, megaSenaData) -> processGanhadoresQuatroDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaData),
-            14, (cell, row, megaSenaData) -> processRateioQuatroDezenas(new BigDecimal(cell.getStringCellValue().substring(2).replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaData)
+            8, (cell, row, megaSenaDTO) -> processGanhadoresSeisDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
+            10, (cell, row, megaSenaDTO) -> processRateioSeisDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO),
+            11, (cell, row, megaSenaDTO) -> processGanhadoresCincoDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
+            12, (cell, row, megaSenaDTO) -> processRateioCincoDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO),
+            13, (cell, row, megaSenaDTO) -> processGanhadoresQuatroDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
+            14, (cell, row, megaSenaDTO) -> processRateioQuatroDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO)
     );
 
     @Override
@@ -36,7 +36,6 @@ public class WorkbookServiceImpl implements IWorkbookService {
             XSSFSheet sheet = workbook.getSheetAt(sheetIndex);
 
             processRows(sheet, columnIndexes, megaSenaData);
-
         } catch (IOException | NumberFormatException e) {
             throw new RuntimeException(e);
         }
@@ -59,10 +58,12 @@ public class WorkbookServiceImpl implements IWorkbookService {
             while (cells.hasNext()) {
                 Cell cell = cells.next();
                 int columnIndex = cell.getColumnIndex();
-                String columnName = sheet.getRow(0).getCell(columnIndex).getStringCellValue();
+                String columnName = sheet.getRow(0).getCell(columnIndex).getStringCellValue().toLowerCase();
 
                 if (columnIndexes.containsKey(columnName)) {
-                    processCellValue(columnIndex, cell, row, megaSenaData);
+                    if (((XSSFCell) cell).getRawValue() != null) {
+                        processCellValue(columnIndex, cell, row, megaSenaData);
+                    }
                 }
             }
         }
@@ -94,7 +95,6 @@ public class WorkbookServiceImpl implements IWorkbookService {
     }
 
     private void processRateioSeisDezenas(BigDecimal bigValue, Row row, MegaSenaDTO megaSenaDTO) {
-
         if (row.getRowNum() == 1) {
             if (bigValue.compareTo(BigDecimal.ZERO) > 0) {
                 megaSenaDTO.setMenorValorSeisDezenas(bigValue);

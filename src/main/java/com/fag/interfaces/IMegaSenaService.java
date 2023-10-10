@@ -1,7 +1,7 @@
 package com.fag.interfaces;
 
-public interface IMegaSenaService {
+public interface IMegaSenaService<T> {
 
-    void analyzer(String path);
+    T analyzer(String path);
 
 }

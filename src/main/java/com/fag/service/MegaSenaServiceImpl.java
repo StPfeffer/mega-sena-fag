@@ -8,27 +8,27 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-public class MegaSenaServiceImpl implements IMegaSenaService {
+public class MegaSenaServiceImpl implements IMegaSenaService<MegaSenaDTO> {
 
     public static MegaSenaServiceImpl instance() {
         return new MegaSenaServiceImpl();
     }
 
     @Override
-    public void analyzer(String path) {
+    public MegaSenaDTO analyzer(String path) {
         File file = new File(path);
 
         try (FileInputStream fis = new FileInputStream(file)) {
             WorkbookServiceImpl workbookService = new WorkbookServiceImpl();
             Map<String, Integer> columnIndexes = workbookService.initializeColumnIndexes(fis);
-            MegaSenaDTO dto = workbookService.processExcelFile(fis, columnIndexes, 0);
 
-            printResults(dto);
+            return workbookService.processExcelFile(fis, columnIndexes, 0);
         } catch (IOException ignored) {
+            throw new RuntimeException("Não foi possível abrir o arquivo no diretório " + path);
         }
     }
 
-    private static void printResults(MegaSenaDTO megaSenaDTO) {
+    public static void printResults(MegaSenaDTO megaSenaDTO) {
         System.out.println("Quantidade de concursos sem seis dezenas: " + megaSenaDTO.getConcursosSemSeisDezenas());
         System.out.println("Menor valor quatro dezenas: " + megaSenaDTO.getMenorValorQuatroDezenas());
         System.out.println("Menor valor cinco dezenas: " + megaSenaDTO.getMenorValorCincoDezenas());
