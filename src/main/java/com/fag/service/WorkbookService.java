@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 public class WorkbookService implements IWorkbook<XSSFWorkbook> {
 
@@ -30,6 +31,8 @@ public class WorkbookService implements IWorkbook<XSSFWorkbook> {
 
         Iterator<Row> rows = sheet.rowIterator();
 
+        LinkedList<MegaSena> megaSenaList = new LinkedList<>();
+
         while (rows.hasNext()) {
             Row row = rows.next();
 
@@ -38,6 +41,11 @@ public class WorkbookService implements IWorkbook<XSSFWorkbook> {
             }
 
             MegaSena newMegaSena = MegaSenaService.createMegaSenaFromRow(row);
+            megaSenaList.add(newMegaSena);
+        }
+
+        if (megaSenaList.size() == 3) {
+            System.out.println("aqui");
         }
     }
 
