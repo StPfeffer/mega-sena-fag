@@ -17,15 +17,20 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class WorkbookServiceImpl implements IWorkbookService {
+    private final Map<Integer, CellProcessorService> columnHandlers = new HashMap<>();
 
-    private final Map<Integer, CellProcessorService> columnHandlers = Map.of(
-            8, (cell, row, megaSenaDTO) -> processGanhadoresSeisDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
-            10, (cell, row, megaSenaDTO) -> processRateioSeisDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO),
-            11, (cell, row, megaSenaDTO) -> processGanhadoresCincoDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
-            12, (cell, row, megaSenaDTO) -> processRateioCincoDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO),
-            13, (cell, row, megaSenaDTO) -> processGanhadoresQuatroDezenas(Integer.parseInt(((XSSFCell) cell).getRawValue()), megaSenaDTO),
-            14, (cell, row, megaSenaDTO) -> processRateioQuatroDezenas(new BigDecimal(cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".")), row, megaSenaDTO)
-    );
+    public WorkbookServiceImpl() {
+        initializeColumnHandlers();
+    }
+
+    private void initializeColumnHandlers() {
+        columnHandlers.put(8, this::processGanhadoresSeisDezenas);
+        columnHandlers.put(10, this::processRateioSeisDezenas);
+        columnHandlers.put(11, this::processGanhadoresCincoDezenas);
+        columnHandlers.put(12, this::processRateioCincoDezenas);
+        columnHandlers.put(13, this::processGanhadoresQuatroDezenas);
+        columnHandlers.put(14, this::processRateioQuatroDezenas);
+    }
 
     @Override
     public MegaSenaDTO processExcelFile(FileInputStream fis, Map<String, Integer> columnIndexes, int sheetIndex) throws IOException {
@@ -60,8 +65,10 @@ public class WorkbookServiceImpl implements IWorkbookService {
                 int columnIndex = cell.getColumnIndex();
                 String columnName = sheet.getRow(0).getCell(columnIndex).getStringCellValue().toLowerCase();
 
-                if (columnIndexes.containsKey(columnName)) {
-                    if (((XSSFCell) cell).getRawValue() != null) {
+                if (columnIndexes.containsKey(columnName) && cell instanceof XSSFCell) {
+                    String rawValue = ((XSSFCell) cell).getRawValue();
+
+                    if (rawValue != null) {
                         processCellValue(columnIndex, cell, row, megaSenaData);
                     }
                 }
@@ -86,7 +93,10 @@ public class WorkbookServiceImpl implements IWorkbookService {
         return columnIndexes;
     }
 
-    private void processGanhadoresSeisDezenas(int valor, MegaSenaDTO megaSenaDTO) {
+    private void processGanhadoresSeisDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String rawValue = ((XSSFCell) cell).getRawValue();
+        int valor = Integer.parseInt(rawValue);
+
         if (valor == 0) {
             megaSenaDTO.incrementConcursosSemSeisDezenas();
         }
@@ -94,29 +104,32 @@ public class WorkbookServiceImpl implements IWorkbookService {
         megaSenaDTO.incrementGanhadoresSeisDezenas(valor);
     }
 
-    private void processRateioSeisDezenas(BigDecimal bigValue, Row row, MegaSenaDTO megaSenaDTO) {
-        if (row.getRowNum() == 1) {
-            if (bigValue.compareTo(BigDecimal.ZERO) > 0) {
-                megaSenaDTO.setMenorValorSeisDezenas(bigValue);
-            }
+    private void processRateioSeisDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String cellValue = cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".");
+        BigDecimal bigValue = new BigDecimal(cellValue);
 
+        if (megaSenaDTO.getMenorValorSeisDezenas().compareTo(BigDecimal.ZERO) == 0) {
+            megaSenaDTO.setMenorValorSeisDezenas(bigValue);
+        } else if (bigValue.compareTo(BigDecimal.ZERO) != 0 && bigValue.compareTo(megaSenaDTO.getMenorValorSeisDezenas()) < 0) {
+            megaSenaDTO.setMenorValorSeisDezenas(bigValue);
+        }
+
+        if (bigValue.compareTo(megaSenaDTO.getMaiorValorSeisDezenas()) > 0) {
             megaSenaDTO.setMaiorValorSeisDezenas(bigValue);
-        } else {
-            if (bigValue.compareTo(megaSenaDTO.getMenorValorSeisDezenas()) < 0 && bigValue.compareTo(BigDecimal.ZERO) > 0) {
-                megaSenaDTO.setMenorValorSeisDezenas(bigValue);
-            }
-
-            if (bigValue.compareTo(megaSenaDTO.getMaiorValorSeisDezenas()) > 0) {
-                megaSenaDTO.setMaiorValorSeisDezenas(bigValue);
-            }
         }
     }
 
-    private void processGanhadoresCincoDezenas(int valor, MegaSenaDTO megaSenaDTO) {
+    private void processGanhadoresCincoDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String rawValue = ((XSSFCell) cell).getRawValue();
+        int valor = Integer.parseInt(rawValue);
+
         megaSenaDTO.incrementGanhadoresCincoDezenas(valor);
     }
 
-    private void processRateioCincoDezenas(BigDecimal bigValue, Row row, MegaSenaDTO megaSenaDTO) {
+    private void processRateioCincoDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String cellValue = cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".");
+        BigDecimal bigValue = new BigDecimal(cellValue);
+
         if (row.getRowNum() == 1) {
             megaSenaDTO.setMenorValorCincoDezenas(bigValue);
             megaSenaDTO.setMaiorValorCincoDezenas(bigValue);
@@ -131,11 +144,17 @@ public class WorkbookServiceImpl implements IWorkbookService {
         }
     }
 
-    private void processGanhadoresQuatroDezenas(int valor, MegaSenaDTO megaSenaDTO) {
+    private void processGanhadoresQuatroDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String rawValue = ((XSSFCell) cell).getRawValue();
+        int valor = Integer.parseInt(rawValue);
+
         megaSenaDTO.incrementGanhadoresQuatroDezenas(valor);
     }
 
-    private void processRateioQuatroDezenas(BigDecimal bigValue, Row row, MegaSenaDTO megaSenaDTO) {
+    private void processRateioQuatroDezenas(Cell cell, Row row, MegaSenaDTO megaSenaDTO) {
+        String cellValue = cell.getStringCellValue().replaceAll("[^\\d,.+]", "").replaceAll("\\.", "").replaceAll(",", ".");
+        BigDecimal bigValue = new BigDecimal(cellValue);
+
         if (row.getRowNum() == 1) {
             megaSenaDTO.setMenorValorQuatroDezenas(bigValue);
             megaSenaDTO.setMaiorValorQuatroDezenas(bigValue);
