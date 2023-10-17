@@ -1,12 +1,12 @@
 package com.fag.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class MegaSena extends AbstractEntity {
 
     private long concurso;
-    private LocalDateTime dataConcurso;
+    private LocalDate dataConcurso;
     private int bola1;
     private int bola2;
     private int bola3;
@@ -34,11 +34,11 @@ public class MegaSena extends AbstractEntity {
         this.concurso = concurso;
     }
 
-    public LocalDateTime getDataConcurso() {
+    public LocalDate getDataConcurso() {
         return dataConcurso;
     }
 
-    public void setDataConcurso(LocalDateTime dataConcurso) {
+    public void setDataConcurso(LocalDate dataConcurso) {
         this.dataConcurso = dataConcurso;
     }
 

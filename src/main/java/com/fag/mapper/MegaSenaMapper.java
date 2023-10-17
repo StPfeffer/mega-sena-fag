@@ -2,9 +2,9 @@ package com.fag.mapper;
 
 import com.fag.domain.MegaSena;
 import com.fag.interfaces.IEntityMapper;
+import com.fag.utils.Utils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -30,9 +30,14 @@ public class MegaSenaMapper implements IEntityMapper<MegaSena> {
 
         while (cells.hasNext()) {
             Cell cell = cells.next();
+            int index = cell.getColumnIndex();
 
-            attrs.put(String.valueOf(cell.getColumnIndex()), ((XSSFCell) cell).getRawValue());
+            Object value = Utils.resolveCellValueByType(cell);
+
+            attrs.put(String.valueOf(index), value);
         }
+
+        attrs = resolveAttrsKeys(attrs);
 
         return attrs;
     }
@@ -56,7 +61,7 @@ public class MegaSenaMapper implements IEntityMapper<MegaSena> {
             field.setAccessible(true);
 
             try {
-                field.set(newMegaSena, value);
+                field.set(newMegaSena, Utils.castValue(field.getType(), value));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -65,7 +70,7 @@ public class MegaSenaMapper implements IEntityMapper<MegaSena> {
         return newMegaSena;
     }
 
-    private static HashMap<String, Object> resolveAttrsKeys(HashMap<String, Object> attrs) {
+    public HashMap<String, Object> resolveAttrsKeys(HashMap<String, Object> attrs) {
         HashMap<String, Object> newAttrs = new HashMap<>();
 
         for (Map.Entry<String, Object> entry : attrs.entrySet()) {
@@ -92,6 +97,7 @@ public class MegaSenaMapper implements IEntityMapper<MegaSena> {
                 case "17" -> newAttrs.put("estimativaPremio", entry.getValue());
                 case "18" -> newAttrs.put("acumuladoEspecialMegaVirada", entry.getValue());
                 case "19" -> newAttrs.put("observacao", entry.getValue());
+                case "20" -> newAttrs.put("teste", entry.getValue());
                 default -> throw new UnsupportedOperationException("Não existe mapeamento para essa chave nos attrs");
             }
         }

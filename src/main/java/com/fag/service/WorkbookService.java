@@ -10,42 +10,43 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class WorkbookService implements IWorkbook<XSSFWorkbook> {
+public class WorkbookService implements IWorkbook<XSSFWorkbook, LinkedList<MegaSena>> {
 
     public static WorkbookService instance() {
         return new WorkbookService();
     }
 
     @Override
-    public void resolveWorkbook(String path, int sheetIndex) throws FileNotFoundException {
+    public LinkedList<MegaSena> resolveWorkbook(String path, int sheetIndex) {
         File file = new File(path);
-        FileInputStream fis = new FileInputStream(file);
 
-        XSSFWorkbook workbook = createWorkbook(fis);
+        try (FileInputStream fis = new FileInputStream(file)) {
+            XSSFWorkbook workbook = createWorkbook(fis);
 
-        if (workbook == null) {
-            throw new RuntimeException("Não foi possível inicializar o workbook!");
-        }
-
-        XSSFSheet sheet = workbook.getSheetAt(sheetIndex);
-
-        Iterator<Row> rows = sheet.rowIterator();
-
-        LinkedList<MegaSena> megaSenaList = new LinkedList<>();
-
-        while (rows.hasNext()) {
-            Row row = rows.next();
-
-            if (row.getRowNum() < 1) {
-                continue;
+            if (workbook == null) {
+                throw new RuntimeException("Não foi possível inicializar o workbook!");
             }
 
-            MegaSena newMegaSena = MegaSenaService.createMegaSenaFromRow(row);
-            megaSenaList.add(newMegaSena);
-        }
+            XSSFSheet sheet = workbook.getSheetAt(sheetIndex);
 
-        if (megaSenaList.size() == 3) {
-            System.out.println("aqui");
+            Iterator<Row> rows = sheet.rowIterator();
+
+            LinkedList<MegaSena> megaSenaList = new LinkedList<>();
+
+            while (rows.hasNext()) {
+                Row row = rows.next();
+
+                if (row.getRowNum() < 1) {
+                    continue;
+                }
+
+                MegaSena newMegaSena = MegaSenaService.createMegaSenaFromRow(row);
+                megaSenaList.add(newMegaSena);
+            }
+
+            return megaSenaList;
+        } catch (IOException e) {
+            return null;
         }
     }
 
