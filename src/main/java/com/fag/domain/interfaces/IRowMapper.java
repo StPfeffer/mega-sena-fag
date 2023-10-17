@@ -1,4 +1,4 @@
-package com.fag.interfaces;
+package com.fag.domain.interfaces;
 
 import org.apache.poi.ss.usermodel.Row;
 

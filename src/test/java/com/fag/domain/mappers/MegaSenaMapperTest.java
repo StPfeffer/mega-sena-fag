@@ -1,6 +1,6 @@
-package com.fag.mapper;
+package com.fag.domain.mappers;
 
-import com.fag.domain.MegaSena;
+import com.fag.domain.entities.MegaSena;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,9 @@
-package com.fag.service;
+package com.fag.domain.services;
 
-import com.fag.domain.MegaSena;
-import com.fag.interfaces.IWorkbook;
+import com.fag.domain.entities.MegaSena;
+import com.fag.domain.interfaces.IWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -17,7 +18,24 @@ public class WorkbookService implements IWorkbook<XSSFWorkbook, LinkedList<MegaS
     }
 
     @Override
-    public LinkedList<MegaSena> resolveWorkbook(String path, int sheetIndex) {
+    public XSSFWorkbook resolveWorkbook(String path) {
+        File file = new File(path);
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            XSSFWorkbook workbook = createWorkbook(fis);
+
+            if (workbook == null) {
+                throw new RuntimeException("Não foi possível inicializar o workbook!");
+            }
+
+            return workbook;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public LinkedList<MegaSena> resolveWorkbookToMegaSenaList(String path, int sheetIndex) {
         File file = new File(path);
 
         try (FileInputStream fis = new FileInputStream(file)) {
@@ -57,6 +75,11 @@ public class WorkbookService implements IWorkbook<XSSFWorkbook, LinkedList<MegaS
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    public Sheet workbookToSheet(XSSFWorkbook workbook, int sheetIndex) {
+        return workbook.getSheetAt(sheetIndex);
     }
 
 }

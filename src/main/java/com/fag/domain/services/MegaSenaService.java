@@ -1,7 +1,7 @@
-package com.fag.service;
+package com.fag.domain.services;
 
-import com.fag.domain.MegaSena;
-import com.fag.mapper.MegaSenaMapper;
+import com.fag.domain.entities.MegaSena;
+import com.fag.domain.mappers.MegaSenaMapper;
 import org.apache.poi.ss.usermodel.Row;
 
 public class MegaSenaService {

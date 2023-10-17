@@ -1,9 +1,9 @@
-package com.fag.domain;
+package com.fag.domain.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class MegaSena extends AbstractEntity {
+public class MegaSena {
 
     private long concurso;
     private LocalDate dataConcurso;

@@ -1,11 +1,10 @@
-package com.fag.interfaces;
+package com.fag.domain.interfaces;
 
-import com.fag.domain.AbstractEntity;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.util.HashMap;
 
-public interface IEntityMapper<ENTITY extends AbstractEntity> extends IRowMapper {
+public interface IEntityMapper<ENTITY> extends IRowMapper {
 
     ENTITY rowToEntity(Row row);
 

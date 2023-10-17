@@ -1,10 +1,12 @@
-package com.fag.mapper;
+package com.fag.domain.mappers;
 
-import com.fag.domain.MegaSena;
-import com.fag.interfaces.IEntityMapper;
+import com.fag.domain.entities.MegaSena;
+import com.fag.domain.interfaces.IEntityMapper;
+import com.fag.domain.services.CellService;
 import com.fag.utils.Utils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ public class MegaSenaMapper implements IEntityMapper<MegaSena> {
             Cell cell = cells.next();
             int index = cell.getColumnIndex();
 
-            Object value = Utils.resolveCellValueByType(cell);
+            Object value = CellService.instance().resolveCellValueByType((XSSFCell) cell);
 
             attrs.put(String.valueOf(index), value);
         }
