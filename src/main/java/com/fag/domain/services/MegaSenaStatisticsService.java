@@ -6,7 +6,6 @@ import com.fag.domain.interfaces.IMegaSenaStatistics;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,36 +64,29 @@ public class MegaSenaStatisticsService implements IMegaSenaStatistics {
 
     @Override
     public BigDecimal findMinPrize(List<MegaSena> megaSenaList, int hits) {
-        return findPrize(megaSenaList, hits, ms -> switch (hits) {
-            case 4 -> ms.getRateioQuatroAcertos();
-            case 5 -> ms.getRateioCincoAcertos();
-            case 6 -> ms.getRateioSeisAcertos();
-            default -> throw new IllegalArgumentException("Invalid number of hits: " + hits);
-        });
+        return megaSenaList.stream()
+                .map(ms -> switch (hits) {
+                    case 4 -> ms.getRateioQuatroAcertos();
+                    case 5 -> ms.getRateioCincoAcertos();
+                    case 6 -> ms.getRateioSeisAcertos();
+                    default -> throw new IllegalArgumentException("Invalid number of hits: " + hits);
+                })
+                .filter(prize -> Objects.nonNull(prize) && prize.compareTo(BigDecimal.ZERO) > 0)
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
     }
 
     @Override
     public BigDecimal findMaxPrize(List<MegaSena> megaSenaList, int hits) {
-        return findPrize(megaSenaList, hits, ms -> switch (hits) {
-            case 4 -> ms.getRateioQuatroAcertos();
-            case 5 -> ms.getRateioCincoAcertos();
-            case 6 -> ms.getRateioSeisAcertos();
-            default -> throw new IllegalArgumentException("Invalid number of hits: " + hits);
-        });
-    }
-
-    @Override
-    public BigDecimal findPrize(List<MegaSena> megaSenaList, int hits, Function<MegaSena, BigDecimal> prizeFunc) {
         return megaSenaList.stream()
-                .map(ms -> {
-                    if (hits >= 4 && hits <= 6) {
-                        return prizeFunc.apply(ms);
-                    } else {
-                        throw new IllegalArgumentException("Invalid number of hits: " + hits);
-                    }
+                .map(ms -> switch (hits) {
+                    case 4 -> ms.getRateioQuatroAcertos();
+                    case 5 -> ms.getRateioCincoAcertos();
+                    case 6 -> ms.getRateioSeisAcertos();
+                    default -> throw new IllegalArgumentException("Invalid number of hits: " + hits);
                 })
                 .filter(prize -> Objects.nonNull(prize) && prize.compareTo(BigDecimal.ZERO) > 0)
-                .min(BigDecimal::compareTo)
+                .max(BigDecimal::compareTo)
                 .orElse(BigDecimal.ZERO);
     }
 
